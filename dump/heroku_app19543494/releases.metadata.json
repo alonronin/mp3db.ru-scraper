@@ -1,0 +1,1 @@
+{ "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "ns" : "mp3db.releases", "name" : "_id_" }, { "v" : 1, "key" : { "url" : 1 }, "unique" : true, "ns" : "mp3db.releases", "name" : "url_1", "background" : true, "safe" : null } ] }

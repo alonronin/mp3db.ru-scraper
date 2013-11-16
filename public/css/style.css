@@ -1,0 +1,8 @@
+ul.files {
+    list-style-type: none;
+    margin: 0;
+}
+
+ul.files li {
+    margin: 0;
+}

@@ -1,0 +1,11 @@
+{>layout/}
+
+{<releases}
+    <ul class="files">
+        {#releases}
+                {#files context=.}
+                   <li><a href="{.}"><span class="glyphicon glyphicon-chevron-right"></span> {title}</a></li>
+                {/files}
+        {/releases}
+    </ul>
+{/releases}
