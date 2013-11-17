@@ -3,7 +3,8 @@ var $ = require('jquery'),
     mongoose = require('mongoose'),
     models = require('./models'),
     ProgressBar = require('progress'),
-    url = require('url');
+    url = require('url'),
+    program = require('commander');
 
 require('sugar');
 
@@ -216,12 +217,15 @@ $.extend(Scraper.prototype, {
 var scraper = new Scraper();
 scraper.url = 'http://mp3db.ru';
 
-var category = 9,
-    pages = 30,
-    start = 81;
+program
+    .version('0.1.6')
+    .option('-c, --category [number]', 'Pass the category number', Number)
+    .option('-p, --pages [number]', 'Number of pages to scan', Number)
+    .option('-s, --start [number]', 'Page number to start', Number)
+    .parse(process.argv);
 
 scraper
-    .scrape(category, pages, start)
+    .scrape(program.category, program.pages, program.start)
     .then(function(){
         return scraper.check();
     })

@@ -1,1 +1,6 @@
 /.idea
+
+/node_modules/progress
+/node_modules/async
+/node_modules/commander
+/node_modules/jquery
