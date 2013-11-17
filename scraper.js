@@ -218,7 +218,7 @@ var scraper = new Scraper();
 scraper.url = 'http://mp3db.ru';
 
 program
-    .version('0.1.6')
+    .version(require('./package.json').version)
     .option('-c, --category [number]', 'Pass the category number', Number)
     .option('-p, --pages [number]', 'Number of pages to scan', Number)
     .option('-s, --start [number]', 'Page number to start', Number)
