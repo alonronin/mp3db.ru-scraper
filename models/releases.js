@@ -3,9 +3,11 @@ var mongoose = require('mongoose'),
     Types = Schema.Types;
 
 var schema = new Schema({
+    cid: Number,
     title: String,
     url: { type: String, unique: true},
-    files: [String]
+    files: [String],
+    date: Date
 });
 
 var model = module.exports = mongoose.model('releases', schema);

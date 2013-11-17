@@ -7,7 +7,10 @@ var express = require('express');
 var http = require('http');
 var path = require('path'),
     mongoose = require('mongoose'),
-    models = require('./models');
+    models = require('./models'),
+    dust = require('dustjs-linkedin');
+
+require('sugar');
 
 var app = express();
 
@@ -29,10 +32,51 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/', function(req, res){
-    models.releases.find().lean().exec(function(err, results){
-        res.render('releases', { releases: results });
+dust.filters.fd = function(value) {
+    return Date.create(value, 'he').format('short', 'he');
+};
+
+var categories = function(req, res, next){
+    models.categories.find().lean().exec(function(err, results){
+        res.locals.categories = results;
+        next();
+    });
+};
+
+var releases = function(req, res, next){
+    var cid = req.query.cid || 9,
+        page = req.query.page || 1,
+        records = 100;
+
+    page = page.toNumber().abs();
+    var from = (page * records) - records;
+
+    res.locals.page = cid;
+    res.locals.next = page + 1;
+    if(page > 1) res.locals.previous = page - 1;
+
+    models.releases
+        .find()
+        .where('cid', cid)
+        .sort('-date')
+        .skip(from)
+        .limit(records)
+        .lean()
+        .exec(function(err, results){
+            res.locals.releases = results;
+            next();
+        });
+};
+
+var files = function(req, res, next) {
+    models.releases.count(function(err, files){
+        res.locals.files = (files).format();
+        next()
     })
+};
+
+app.get('/', [categories, files, releases], function(req, res){
+    res.render('releases');
 });
 
 mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/mp3db');

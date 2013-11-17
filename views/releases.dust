@@ -4,8 +4,19 @@
     <ul class="files">
         {#releases}
                 {#files context=.}
-                   <li><a href="{.}"><span class="glyphicon glyphicon-chevron-right"></span> {title}</a></li>
+                   <li><a href="{.}"><span class="glyphicon glyphicon-chevron-right"></span> {title}</a> <small>{date|fd}</small></li>
                 {/files}
         {/releases}
     </ul>
+
+    <br/>
+
+    <div class="well well-sm">
+        {?next}
+        <a href="/?cid={page}&page={next}">older</a>
+        {/next}
+        {?previous}
+         <a href="/?cid={page}&page={previous}" class="pull-right">newer</a>
+        {/previous}
+    </div>
 {/releases}

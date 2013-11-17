@@ -6,3 +6,10 @@ ul.files {
 ul.files li {
     margin: 0;
 }
+
+span.releases {
+    font-size: 80%;
+    font-weight: bold;
+    font-style: italic;
+    color: #2D6CA2
+}

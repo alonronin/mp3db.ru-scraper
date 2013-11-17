@@ -11,6 +11,7 @@ mongoose.connect('mongodb://localhost/mp3db');
 
 var Scraper = function(){
     this.url = '';
+    this.cid = null;
     this.page_query = 'page';
     this.links = [];
     this.files = [];
@@ -19,48 +20,46 @@ var Scraper = function(){
 };
 
 $.extend(Scraper.prototype, {
-    start: function(path, pages){
-        var self = this,
-            url = self.parseUrl(path),
+    scrape: function(category, pages, start){
+        var self = this;
+        self.cid = category;
+
+        start || (start = 1);
+        pages || (pages = 1);
+
+        var url = self.parseUrl('index.php?cid=' + self.cid),
             deferred = $.Deferred();
 
         console.log('starting scraper', self.date);
 
-        if(pages){
-            var arr = [];
-            for(var i = 1; i <= pages; i++ ){
-                arr.push(i);
-            }
-
-            console.log();
-
-            var bar = new ProgressBar('fetching new links [:bar] :percent :etas', {
-                complete: '='
-                , incomplete: ' '
-                , width: 50
-                , total: arr.length
-            });
-
-            async.eachLimit(arr,
-                self.limit,
-                function(page, done){
-                    self.getTitles(self.addQuery(url, self.page_query, page)).done(function(){
-                        bar.tick();
-                        done();
-                    });
-                },
-                function(error){
-                    console.log();
-                    console.log('links found:', self.links.length);
-                    deferred.resolve();
-                }
-            );
-        }else{
-            self.getTitles(url).done(function(){
-                console.log('links found:', self.links.length);
-                deferred.resolve()
-            })
+        var arr = [];
+        for(var i = start; i <= (pages + start - 1); i++ ){
+            arr.push(i);
         }
+
+        console.log();
+
+        var bar = new ProgressBar('fetching new links [:bar] :percent :etas', {
+            complete: '='
+            , incomplete: ' '
+            , width: 50
+            , total: arr.length
+        });
+
+        async.eachLimit(arr,
+            self.limit,
+            function(page, done){
+                self.getTitles(self.addQuery(url, self.page_query, page)).done(function(){
+                    bar.tick();
+                    done();
+                });
+            },
+            function(error){
+                console.log();
+                console.log('links found:', self.links.length);
+                deferred.resolve();
+            }
+        );
 
         return deferred;
     },
@@ -71,9 +70,13 @@ $.extend(Scraper.prototype, {
         models.releases.find().in('url', self.links).exec(function(err, results){
             if(results) {
                 var arr = results.map('url');
-                self.links = self.links.subtract(arr);
+                arr = self.links.subtract(arr);
 
-                console.log(self.links.length);
+                var removed = self.links.length - arr.length;
+
+                self.links = arr;
+
+                console.log('links foudend in db', removed);
             }
             deferred.resolve();
         });
@@ -102,7 +105,6 @@ $.extend(Scraper.prototype, {
         return deferred;
     },
     getFiles: function(){
-
         var self = this,
             deferred = $.Deferred();
 
@@ -122,6 +124,7 @@ $.extend(Scraper.prototype, {
                     var $html = $(html),
                         files = [],
                         title = $html.find('div.ptitle').text(),
+                        date = self.getDate(html),
                         downloads = $html.find('a[href^="http://novafile"]');
 
                     $.each(downloads, function(){
@@ -129,7 +132,7 @@ $.extend(Scraper.prototype, {
                         if(self.isFile(file)) files.push(file);
                     });
 
-                    self.files.push({title: title, url: link, files: files});
+                    self.files.push({cid: self.cid, title: title, url: link, files: files, date: date});
 
                     bar.tick();
 
@@ -198,23 +201,36 @@ $.extend(Scraper.prototype, {
         query += '=';
 
         return uri + (o.query ? '&' : '?') + query + value;
+    },
+    getDate: function(html){
+        var date = new Date();
+
+        html.replace(/<b>date.*<\/b> (.*)/i, function(match, str){
+            date = Date.create(str, 'he');
+        });
+
+        return date;
     }
 });
 
 var scraper = new Scraper();
 scraper.url = 'http://mp3db.ru';
 
+var category = 9,
+    pages = 30,
+    start = 81;
+
 scraper
-    .start('index.php?cid=9', 3)
+    .scrape(category, pages, start)
     .then(function(){
         return scraper.check();
     })
-/*    .then(function(){
+    .then(function(){
         return scraper.getFiles();
     })
     .then(function(){
         return scraper.updateDb();
-    })*/
+    })
     .then(function(){
         scraper.end();
     });
