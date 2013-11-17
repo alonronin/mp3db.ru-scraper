@@ -23,10 +23,13 @@ var Scraper = function(){
 $.extend(Scraper.prototype, {
     scrape: function(category, pages, start){
         var self = this;
-        self.cid = category;
 
+        category || (category = 9);
         start || (start = 1);
         pages || (pages = 1);
+
+        self.cid = category;
+
 
         var url = self.parseUrl('index.php?cid=' + self.cid),
             deferred = $.Deferred();
