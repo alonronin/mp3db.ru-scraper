@@ -1,6 +1,6 @@
 {
   "name": "mp3db-ru-scraper",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "private": true,
   "scripts": {
     "start": "node app.js"
