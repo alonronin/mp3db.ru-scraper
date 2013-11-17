@@ -1,10 +1,10 @@
 {>layout/}
 
 {<releases}
-    <ul class="files">
+    <ul class="files fa-ul">
         {#releases}
                 {#files context=.}
-                   <li><a href="{.}"><span class="glyphicon glyphicon-chevron-right"></span> {title}</a> <small>{date|fd}</small></li>
+                   <li><a href="{.}"><span class="fa-li fa fa-music"></span> {title}</a> <small>{date|fd}</small></li>
                 {/files}
         {/releases}
     </ul>
@@ -13,10 +13,10 @@
 
     <div class="well well-sm">
         {?next}
-        <a href="/?cid={page}&page={next}">older</a>
+        <a href="/?cid={page}&page={next}"><i class="fa fa-angle-double-left"></i> older</a>
         {/next}
         {?previous}
-         <a href="/?cid={page}&page={previous}" class="pull-right">newer</a>
+         <a href="/?cid={page}&page={previous}" class="pull-right">newer <i class="fa fa-angle-double-right"></i></a>
         {/previous}
     </div>
 {/releases}

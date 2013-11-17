@@ -9,39 +9,51 @@
     <link rel="stylesheet" href="/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="/css/bootstrap-theme.min.css"/>
     <link rel="stylesheet" href="/css/style.css"/>
+
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 </head>
 <body>
-<div class="navbar navbar-default navbar-static-top" role="navigation">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
+<div id="wrap">
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    {#categories}
+                    <li {@if cond="{page} == {cid}"}class="active"{/if}><a href="/?cid={cid}">{name}</a></li>
+                    {/categories}
+                </ul>
+            </div><!--/.nav-collapse -->
         </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                {#categories}
-                <li {@if cond="{page} == {cid}"}class="active"{/if}><a href="/?cid={cid}">{name}</a></li>
-                {/categories}
-            </ul>
-        </div><!--/.nav-collapse -->
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Mp3db.ru Releases | <small>we have <span class="releases">{files}</span> releases</small></h1>
+        </div>
+
+        {+releases/}
     </div>
 </div>
 
-<div class="container">
-    <div class="page-header">
-        <h1>Mp3db.ru Releases | <small>we have <span class="releases">{files}</span> releases</small></h1>
+<div id="footer">
+    <div class="container">
+        <p class="text-muted credit">Scraped with love from <a href="http://mp3db.ru">Mp3DB.ru</a></p>
+
+        <ul>
+            <li><a href="https://github.com/alonronin/mp3db.ru-scraper"><span class="fa fa-github"></span></a></li>
+            <li><a href="http://www.facebook.com/valadji"><span class="fa fa-facebook"></span></a></li>
+            <li><a href="https://twitter.com/valadji"><span class="fa fa fa-twitter"></span></a></li>
+        </ul>
     </div>
-
-    {+releases/}
 </div>
-
-<footer>
-    <br/>
-</footer>
 
 <script src="/js/jquery-2.0.3.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
