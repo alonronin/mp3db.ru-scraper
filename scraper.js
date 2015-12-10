@@ -6,6 +6,7 @@ var $ = require('jquery'),
     url = require('url'),
     program = require('commander');
 
+// todo replace sugar with moment and lodash
 require('sugar');
 
 mongoose.connect('mongodb://localhost/mp3db');

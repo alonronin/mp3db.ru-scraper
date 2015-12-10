@@ -10,7 +10,7 @@ var path = require('path'),
     models = require('./models'),
     dust = require('dustjs-linkedin');
 
-require('sugar');
+var moment = require('moment');
 
 var app = express();
 
@@ -33,7 +33,12 @@ if ('development' == app.get('env')) {
 }
 
 dust.filters.fd = function(value) {
-    return Date.create(value, 'he').format('short', 'he');
+    return moment(value).format('ll');
+};
+
+dust.filters.number = function(value) {
+    value = Number(value);
+    return value.toLocaleString();
 };
 
 var categories = function(req, res, next){
@@ -48,7 +53,7 @@ var releases = function(req, res, next){
         page = req.query.page || 1,
         records = 100;
 
-    page = page.toNumber().abs();
+    page = Math.abs(Number(page));
     var from = (page * records) - records;
 
     res.locals.page = cid;
@@ -70,7 +75,7 @@ var releases = function(req, res, next){
 
 var files = function(req, res, next) {
     models.releases.count(function(err, files){
-        res.locals.files = (files).format();
+        res.locals.files = files;
         next()
     })
 };
