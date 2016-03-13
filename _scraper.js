@@ -1,13 +1,10 @@
-var cheerio = require('cheerio');
-var request = require('superagent');
-var _ = require('lodash');
-var q = require('q');
-var async = require('async');
-var mongoose = require('mongoose');
-var models = require('./models');
-var ProgressBar = require('progress');
-var url = require('url');
-var program = require('commander');
+var $ = require('jquery'),
+    async = require('async'),
+    mongoose = require('mongoose'),
+    models = require('./models'),
+    ProgressBar = require('progress'),
+    url = require('url'),
+    program = require('commander');
 
 // todo replace sugar with moment and lodash
 require('sugar');
@@ -24,7 +21,7 @@ var Scraper = function(){
     this.date = new Date;
 };
 
-_.extend(Scraper.prototype, {
+$.extend(Scraper.prototype, {
     scrape: function(category, pages, start){
         var self = this;
 
@@ -36,7 +33,7 @@ _.extend(Scraper.prototype, {
 
 
         var url = self.parseUrl('index.php?cid=' + self.cid),
-            deferred = q.defer();
+            deferred = $.Deferred();
 
         console.log('starting scraper', self.date);
 
@@ -57,7 +54,7 @@ _.extend(Scraper.prototype, {
         async.eachLimit(arr,
             self.limit,
             function(page, done){
-                self.getTitles(self.addQuery(url, self.page_query, page)).then(function(){
+                self.getTitles(self.addQuery(url, self.page_query, page)).done(function(){
                     bar.tick();
                     done();
                 });
@@ -69,11 +66,11 @@ _.extend(Scraper.prototype, {
             }
         );
 
-        return deferred.promise;
+        return deferred;
     },
     check: function(){
         var self = this;
-        var deferred = q.defer();
+        var deferred = $.Deferred();
 
         models.releases.find().in('url', self.links).exec(function(err, results){
             if(results) {
@@ -89,38 +86,32 @@ _.extend(Scraper.prototype, {
             deferred.resolve();
         });
 
-        return deferred.promise;
+        return deferred;
     },
     getTitles: function(url){
         var self = this;
-        var deferred = q.defer();
+        var deferred = $.Deferred();
 
-        request
-            .get(url)
-            .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36')
-            .end(function(err, res){
-                if(err) deferred.reject(err);
+        $.get(url).done(function(html){
+            var titles = $(html).find('a.ptitle');
 
-                var $ = cheerio.load(res.text);
+            if(titles){
+                $.each(titles, function(){
+                    self.links.push($(this).attr('href'));
+                });
 
-                var titles = $('a.ptitle');
+                deferred.resolve();
+            }else{
+                deferred.reject()
+            }
 
-                if(titles){
-                    titles.each(function(){
-                        self.links.push($(this).attr('href'));
-                    });
+        });
 
-                    deferred.resolve();
-                }else{
-                    deferred.reject()
-                }
-            });
-
-        return deferred.promise;
+        return deferred;
     },
     getFiles: function(){
         var self = this,
-            deferred = q.defer();
+            deferred = $.Deferred();
 
         console.log();
 
@@ -134,31 +125,24 @@ _.extend(Scraper.prototype, {
         async.eachLimit(self.links,
             self.limit,
             function(link, done){
+                $.get(self.parseUrl(link)).done(function(html){
+                    var $html = $(html),
+                        files = [],
+                        title = $html.find('div.ptitle').text(),
+                        date = self.getDate(html),
+                        downloads = $html.find('a[href^="http://novafile"]');
 
-                request
-                    .get(self.parseUrl(link))
-                    .set('User-Agent', 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36')
-                    .end(function(err, res){
-                        if(err) deferred.reject(err);
-
-                        var $ = cheerio.load(res.text);
-
-                        var files = [];
-                        var title = $('div.ptitle').text();
-                        var date = self.getDate($.html());
-                        var downloads = $('a[href^="http://novafile"]');
-
-                        downloads.each(function(){
-                            var file = _.trim($(this).text());
-                            if(self.isFile(file)) files.push(file);
-                        });
-
-                        self.files.push({cid: self.cid, title: title, url: link, files: files, date: date});
-
-                        bar.tick();
-
-                        done();
+                    $.each(downloads, function(){
+                        var file = $.trim($(this).text());
+                        if(self.isFile(file)) files.push(file);
                     });
+
+                    self.files.push({cid: self.cid, title: title, url: link, files: files, date: date});
+
+                    bar.tick();
+
+                    done();
+                })
             },
             function(error){
                 console.log();
@@ -166,11 +150,11 @@ _.extend(Scraper.prototype, {
             }
         );
 
-        return deferred.promise;
+        return deferred;
     },
     updateDb: function(){
         var self = this,
-            deferred = q.defer();
+            deferred = $.Deferred();
 
         console.log();
 
@@ -196,7 +180,7 @@ _.extend(Scraper.prototype, {
             }
         );
 
-        return deferred.promise;
+        return deferred;
     },
     end: function(){
         var self = this;

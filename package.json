@@ -15,9 +15,13 @@
   },
   "devDependencies": {
     "async": "^0.2.9",
-    "cheerio": "^0.19.0",
+    "cheerio": "^0.20.0",
     "commander": "~2.0.0",
+    "lodash": "^4.6.1",
     "progress": "~1.1.2",
-    "request": "^2.61.0"
+    "q": "^1.4.1",
+    "request": "^2.69.0",
+    "sugar": "^1.4.1",
+    "superagent": "^1.8.0"
   }
 }
